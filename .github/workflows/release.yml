@@ -1,0 +1,53 @@
+name: Release
+
+# Builds the Windows installer and publishes a GitHub Release whenever you push
+# a version tag like v1.2.0. Steps to ship an update:
+#   1. Bump the version (package.json, src-tauri/tauri.conf.json, src-tauri/Cargo.toml, src/version.ts)
+#   2. git commit -am "release: v1.2.0" && git tag v1.2.0 && git push --tags
+#   3. This workflow builds Nidaa_*-setup.exe and attaches it to a new release.
+
+on:
+  push:
+    tags:
+      - "v*"
+
+# Allow the workflow to create releases and upload assets.
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "src-tauri -> target"
+
+      - name: Install frontend dependencies
+        run: npm install
+
+      - name: Build app and publish release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: "Nidaa ${{ github.ref_name }}"
+          releaseBody: |
+            Nidaa ${{ github.ref_name }}
+
+            Download **Nidaa_*-setup.exe** below and run it to install/update.
+          releaseDraft: false
+          prerelease: false

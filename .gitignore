@@ -1,0 +1,29 @@
+# Dependencies
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Rust / Tauri
+src-tauri/target/
+src-tauri/gen/
+
+# Downloaded / user-provided audio (keep folder, ignore large media)
+src-tauri/audio/*.mp3
+public/audio/*.mp3

@@ -1,0 +1,38 @@
+{
+  "name": "nidaa",
+  "private": true,
+  "version": "1.1.0",
+  "type": "module",
+  "description": "Nidaa - Islamic prayer times and Adhan notifications",
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.1.1",
+    "@tauri-apps/plugin-autostart": "^2.2.0",
+    "@tauri-apps/plugin-notification": "^2.2.0",
+    "@tauri-apps/plugin-opener": "^2.2.0",
+    "@tauri-apps/plugin-os": "^2.2.0",
+    "@tauri-apps/plugin-store": "^2.2.0",
+    "adhan": "^4.4.3",
+    "i18next": "^23.16.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-i18next": "^15.1.1"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.1.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Default capabilities for the Prayer Times desktop app.",
+  "windows": ["main", "reminder", "azan"],
+  "permissions": [
+    "core:default",
+    "core:event:default",
+    "core:webview:allow-create-webview-window",
+    "core:window:allow-show",
+    "core:window:allow-hide",
+    "core:window:allow-unminimize",
+    "core:window:allow-set-focus",
+    "core:window:allow-close",
+    "core:window:allow-current-monitor",
+    "core:window:allow-set-always-on-top",
+    "core:window:allow-set-position",
+    "core:app:default",
+    "store:default",
+    "notification:default",
+    "os:default",
+    "opener:default",
+    "opener:allow-open-url",
+    "autostart:allow-enable",
+    "autostart:allow-disable",
+    "autostart:allow-is-enabled"
+  ]
+}
