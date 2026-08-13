@@ -39,7 +39,8 @@
     "noLocation": "لم يتم تحديد الموقع بعد. الرجاء اختيار مدينتك.",
     "detectFailedManual": "تعذّر تحديد موقعك تلقائيًا. الرجاء اختيار مدينتك يدويًا.",
     "chooseLocation": "اختيار الموقع",
-    "today": "اليوم"
+    "today": "اليوم",
+    "iqamaLabel": "الإقامة"
   },
   "countdown": {
     "hours": "س",
@@ -106,6 +107,20 @@
     "testReminder": "تجربة التذكير",
     "testNotification": "تجربة الإشعار",
     "testSent": "تم الإرسال.",
+    "iqamaSection": "الإقامة",
+    "iqamaHint": "تنبيه ثانٍ بعد الأذان بعدد الدقائق اللي تختارها، عند إقامة الصلاة.",
+    "iqamaEnabled": "تنبيه الإقامة",
+    "iqamaOffsets": "الدقائق بين الأذان والإقامة",
+    "iqamaOffsetsHint": "اجعلها 0 لأي صلاة لإلغاء إقامتها.",
+    "iqamaReset": "استعادة الافتراضي",
+    "iqamaSound": "صوت الإقامة",
+    "iqamaCustom": "رابط من عندي…",
+    "iqamaSoundHint": "أصوات إقامة قصيرة فقط — مش أذان كامل. التسجيلات المدمجة تعمل بدون إنترنت.",
+    "iqamaUrl": "رابط الإقامة (mp3 أو يوتيوب)",
+    "iqamaUrlHint": "رابط mp3 مباشر أو رابط يوتيوب. يحتاج اتصالًا بالإنترنت.",
+    "iqamaShowInList": "إظهار وقت الإقامة تحت كل صلاة",
+    "testIqama": "تجربة الإقامة",
+    "minutes": "د",
     "systemSection": "النظام",
     "startOnBoot": "تشغيل التطبيق عند بدء النظام",
     "theme": "السمة",
@@ -155,12 +170,20 @@
     "minshawi": "محمد صديق المنشاوي",
     "haram": "مؤذّن الحرم"
   },
+  "iqamaSounds": {
+    "husaryShort": "إقامة مختصرة — الحصري",
+    "haramShort": "إقامة مختصرة — الحرم",
+    "husaryFull": "إقامة كاملة — الحصري",
+    "saqqafFull": "إقامة كاملة — هاشم السقاف · الحرم"
+  },
   "notifications": {
     "azanTitle": "الأذان",
     "timeStartedTitle": "موعد الصلاة",
     "timeStartedBody": "حان الآن موعد صلاة {{prayer}}.",
     "reminderTitle": "تذكير بالصلاة",
-    "reminderBody": "تبقّى {{count}} دقائق على صلاة {{prayer}}."
+    "reminderBody": "تبقّى {{count}} دقائق على صلاة {{prayer}}.",
+    "iqamaTitle": "الإقامة",
+    "iqamaBody": "أُقيمت صلاة {{prayer}}."
   },
   "tray": {
     "open": "فتح التطبيق",

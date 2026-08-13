@@ -1,6 +1,8 @@
 import {
   ADHAN_PRAYERS,
   ALL_PRAYERS,
+  type IqamaOffsets,
+  type IqamaPrayer,
   type PlaybackRecord,
   type PrayerName,
   type PrayerTimings,
@@ -28,11 +30,36 @@ export interface NextPrayerInfo {
 export type ScheduledEvent =
   | { type: "adhan"; prayer: PrayerName }
   | { type: "notify"; prayer: PrayerName }
-  | { type: "reminder"; prayer: PrayerName; minutes: number };
+  | { type: "reminder"; prayer: PrayerName; minutes: number }
+  | { type: "iqama"; prayer: PrayerName; minutes: number };
 
 export function timeToMinutes(hhmm: string): number {
   const [h, m] = hhmm.split(":").map(Number);
   return h * 60 + m;
+}
+
+/** "HH:mm" + n minutes, wrapping past midnight. */
+export function addMinutes(hhmm: string, minutes: number): string {
+  const total = (timeToMinutes(hhmm) + minutes + 24 * 60) % (24 * 60);
+  const h = Math.floor(total / 60);
+  const m = total % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
+/**
+ * Iqama clock times for a day, derived from the Adhan times plus the
+ * per-prayer offsets. Prayers with a 0 offset are omitted.
+ */
+export function iqamaTimes(
+  timings: PrayerTimings,
+  offsets: IqamaOffsets
+): Partial<Record<IqamaPrayer, string>> {
+  const out: Partial<Record<IqamaPrayer, string>> = {};
+  for (const prayer of ADHAN_PRAYERS as IqamaPrayer[]) {
+    const off = Number(offsets?.[prayer]) || 0;
+    if (off > 0) out[prayer] = addMinutes(timings[prayer], off);
+  }
+  return out;
 }
 
 /** Current minutes-since-midnight and seconds in a timezone. */
@@ -95,6 +122,8 @@ export function dueEvents(
     adhanEnabled: boolean;
     remindersEnabled: boolean;
     reminderMinutes: number;
+    iqamaEnabled?: boolean;
+    iqamaOffsets?: IqamaOffsets;
   },
   played: PlaybackRecord
 ): ScheduledEvent[] {
@@ -113,6 +142,20 @@ export function dueEvents(
       }
       if (opts.adhanEnabled && !played.adhanPlayed.includes(prayer)) {
         events.push({ type: "adhan", prayer });
+      }
+    }
+
+    // Iqama, `offset` minutes after the Adhan.
+    if (opts.iqamaEnabled && opts.iqamaOffsets) {
+      const offset = Number(opts.iqamaOffsets[prayer as IqamaPrayer]) || 0;
+      const iqamaAt = start + offset;
+      if (
+        offset > 0 &&
+        nowMin >= iqamaAt &&
+        nowMin <= iqamaAt + 1 &&
+        !(played.iqamaFired ?? []).includes(prayer)
+      ) {
+        events.push({ type: "iqama", prayer, minutes: offset });
       }
     }
 
@@ -145,6 +188,7 @@ function emptyRecord(dateIso: string): PlaybackRecord {
     adhanPlayed: [],
     reminderFired: [],
     notified: [],
+    iqamaFired: [],
   };
 }
 
@@ -158,6 +202,8 @@ export const PlaybackStore = {
       await StorageService.set(KEYS.playback, fresh);
       return fresh;
     }
+    // Records written by older versions have no `iqamaFired` array.
+    if (!stored.iqamaFired) stored.iqamaFired = [];
     return stored;
   },
 
@@ -178,6 +224,11 @@ export const PlaybackStore = {
       !record.notified.includes(event.prayer)
     ) {
       record.notified.push(event.prayer);
+    } else if (
+      event.type === "iqama" &&
+      !(record.iqamaFired ??= []).includes(event.prayer)
+    ) {
+      record.iqamaFired.push(event.prayer);
     }
     await StorageService.set(KEYS.playback, record);
     return record;

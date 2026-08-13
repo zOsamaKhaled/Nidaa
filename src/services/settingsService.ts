@@ -1,4 +1,5 @@
-import { AppSettings, DEFAULT_SETTINGS } from "../types";
+import { AppSettings, DEFAULT_SETTINGS, IQAMA_CHIME, IQAMA_CUSTOM } from "../types";
+import { DEFAULT_IQAMA_SOUND_ID, findIqamaSound } from "../data/iqamaSounds";
 import { KEYS, StorageService } from "./storageService";
 
 /**
@@ -9,7 +10,16 @@ import { KEYS, StorageService } from "./storageService";
 export const SettingsService = {
   async load(): Promise<AppSettings> {
     const stored = await StorageService.get<Partial<AppSettings>>(KEYS.settings);
-    return { ...DEFAULT_SETTINGS, ...(stored ?? {}) };
+    const merged = { ...DEFAULT_SETTINGS, ...(stored ?? {}) };
+    // An Iqama sound saved by an earlier build (the chime, or a muezzin id that
+    // is no longer offered) falls back to a bundled Iqama recording.
+    if (
+      merged.iqamaSoundId !== IQAMA_CUSTOM &&
+      (merged.iqamaSoundId === IQAMA_CHIME || !findIqamaSound(merged.iqamaSoundId))
+    ) {
+      merged.iqamaSoundId = DEFAULT_IQAMA_SOUND_ID;
+    }
+    return merged;
   },
 
   async save(settings: AppSettings): Promise<void> {

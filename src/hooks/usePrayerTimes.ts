@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { AppSettings, PrayerDay } from "../types";
 import { PrayerTimesApiService, dateInTimezone } from "../services/prayerTimesApiService";
+import { onConnectivityRestored } from "../services/networkService";
 
 /**
  * usePrayerTimes — loads today's prayer times for the configured location and
@@ -41,6 +42,21 @@ export function usePrayerTimes(settings: AppSettings) {
   useEffect(() => {
     void fetchNow();
   }, [fetchNow]);
+
+  // Connectivity watcher: the app usually starts before Wi-Fi is up, so as soon
+  // as the connection becomes usable we refetch and pre-cache the coming month
+  // (so the *next* offline start is covered too).
+  useEffect(() => {
+    if (!location) return;
+    return onConnectivityRestored(() => {
+      void fetchNow();
+      void PrayerTimesApiService.prefetchAhead(
+        location,
+        calculationMethod,
+        asrMethod
+      ).catch(() => {});
+    });
+  }, [location, calculationMethod, asrMethod, fetchNow]);
 
   // Day-rollover watcher: every minute, refetch if the local date changed.
   useEffect(() => {

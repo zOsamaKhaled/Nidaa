@@ -3,9 +3,11 @@ import { useTranslation } from "react-i18next";
 import type { AppSettings, PrayerDay } from "../types";
 import {
   PlaybackStore,
+  addMinutes,
   dueEvents,
   type ScheduledEvent,
 } from "../services/schedulerService";
+import { playIqama } from "../services/iqamaService";
 import { NotificationService } from "../services/notificationService";
 import { ReminderService } from "../services/reminderService";
 import { AzanService } from "../services/azanService";
@@ -68,6 +70,30 @@ export function useScheduler(
           sourceEn: h.sourceEn,
           language: lang,
         });
+      } else if (event.type === "iqama") {
+        const lang = i18n.language === "ar" ? "ar" : "en";
+        const day = dayRef.current;
+        const at = day
+          ? formatTime(
+              addMinutes(day.timings[event.prayer], event.minutes),
+              s.timeFormat,
+              lang
+            )
+          : "";
+        try {
+          await playIqama(s);
+        } catch {
+          /* sound unavailable — the popup below still informs the user */
+        }
+        await AzanService.show({
+          title: t("notifications.iqamaTitle"),
+          prayer: prayerLabel,
+          body: t("notifications.iqamaBody", { prayer: prayerLabel }),
+          at,
+          stopLabel: t("settings.stopPreview"),
+          language: lang,
+          ttlMs: 30000,
+        });
       } else if (event.type === "adhan") {
         const lang = i18n.language === "ar" ? "ar" : "en";
         const short = s.adhanLength === "short";
@@ -115,6 +141,8 @@ export function useScheduler(
           adhanEnabled: s.adhanEnabled,
           remindersEnabled: s.remindersEnabled,
           reminderMinutes: Number(s.reminderMinutes) || 0,
+          iqamaEnabled: s.iqamaEnabled,
+          iqamaOffsets: s.iqamaOffsets,
         },
         played
       );

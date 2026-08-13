@@ -39,7 +39,8 @@
     "noLocation": "No location set yet. Please choose your city.",
     "detectFailedManual": "Couldn't detect your location automatically. Please choose your city manually.",
     "chooseLocation": "Choose location",
-    "today": "Today"
+    "today": "Today",
+    "iqamaLabel": "Iqama"
   },
   "countdown": {
     "hours": "h",
@@ -106,6 +107,20 @@
     "testReminder": "Test reminder",
     "testNotification": "Test notification",
     "testSent": "Test sent.",
+    "iqamaSection": "Iqama",
+    "iqamaHint": "A second alert a few minutes after the Adhan, when the congregation stands for prayer.",
+    "iqamaEnabled": "Announce the Iqama",
+    "iqamaOffsets": "Minutes between Adhan and Iqama",
+    "iqamaOffsetsHint": "Set 0 for a prayer to skip its Iqama.",
+    "iqamaReset": "Restore defaults",
+    "iqamaSound": "Iqama sound",
+    "iqamaCustom": "My own link…",
+    "iqamaSoundHint": "Short Iqama calls only — not a full Adhan. Bundled recordings work offline.",
+    "iqamaUrl": "Iqama link (mp3 or YouTube)",
+    "iqamaUrlHint": "A direct .mp3 link or a YouTube URL. Needs an internet connection.",
+    "iqamaShowInList": "Show Iqama time under each prayer",
+    "testIqama": "Test Iqama",
+    "minutes": "min",
     "systemSection": "System",
     "startOnBoot": "Start app on system startup",
     "theme": "Theme",
@@ -155,12 +170,20 @@
     "minshawi": "Mohamed Siddiq El-Minshawi",
     "haram": "Muezzin of Al-Haram"
   },
+  "iqamaSounds": {
+    "husaryShort": "Short Iqama — Al-Husary",
+    "haramShort": "Short Iqama — Al-Haram",
+    "husaryFull": "Full Iqama — Al-Husary",
+    "saqqafFull": "Full Iqama — Hashim Al-Saqqaf · Al-Haram"
+  },
   "notifications": {
     "azanTitle": "Adhan",
     "timeStartedTitle": "Prayer time",
     "timeStartedBody": "It is now time for {{prayer}} prayer.",
     "reminderTitle": "Prayer reminder",
-    "reminderBody": "{{count}} minutes left until {{prayer}} prayer."
+    "reminderBody": "{{count}} minutes left until {{prayer}} prayer.",
+    "iqamaTitle": "Iqama",
+    "iqamaBody": "The Iqama for {{prayer}} prayer."
   },
   "tray": {
     "open": "Open app",

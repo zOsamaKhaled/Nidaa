@@ -2,6 +2,8 @@
 // Central domain types shared across services and UI.
 // ---------------------------------------------------------------------------
 
+import { DEFAULT_IQAMA_SOUND_ID } from "../data/iqamaSounds";
+
 export type Language = "en" | "ar";
 
 export type LocationMode = "auto" | "manual";
@@ -113,6 +115,21 @@ export interface PrayerDay {
 
 export type ReminderMinutes = 0 | 5 | 10 | 15 | number;
 
+/** Prayers that have an Iqama (the five obligatory ones — no sunrise). */
+export type IqamaPrayer = Exclude<PrayerName, "sunrise">;
+
+/** Minutes between the Adhan and the Iqama, per prayer. 0 disables that one. */
+export type IqamaOffsets = Record<IqamaPrayer, number>;
+
+/**
+ * Sound played at Iqama time: either a bundled recording id from
+ * `data/iqamaSounds.ts`, or `IQAMA_CUSTOM` to use the user's own `iqamaUrl`.
+ * `IQAMA_CHIME` is not offered in the UI — it's the last-resort fallback used
+ * when the chosen recording or link cannot be played.
+ */
+export const IQAMA_CHIME = "chime";
+export const IQAMA_CUSTOM = "custom";
+
 export interface AppSettings {
   language: Language;
   locationMode: LocationMode;
@@ -134,7 +151,26 @@ export interface AppSettings {
   reminderMinutes: ReminderMinutes;
   startOnBoot: boolean;
   theme: "light" | "dark" | "system";
+  /** Announce the Iqama (a second alert `iqamaOffsets` minutes after the Adhan). */
+  iqamaEnabled: boolean;
+  /** Minutes between Adhan and Iqama, per prayer (0 = no Iqama for it). */
+  iqamaOffsets: IqamaOffsets;
+  /** `IQAMA_CHIME`, `IQAMA_CUSTOM`, or a muezzin id. */
+  iqamaSoundId: string;
+  /** Direct mp3 or YouTube link used when `iqamaSoundId === IQAMA_CUSTOM`. */
+  iqamaUrl: string;
+  /** Show the Iqama time under each prayer on the home screen. */
+  iqamaShowInList: boolean;
 }
+
+/** Common practice: a longer wait for Fajr/Dhuhr/Asr, shorter for Maghrib. */
+export const DEFAULT_IQAMA_OFFSETS: IqamaOffsets = {
+  fajr: 20,
+  dhuhr: 20,
+  asr: 20,
+  maghrib: 10,
+  isha: 15,
+};
 
 export const DEFAULT_SETTINGS: AppSettings = {
   language: "en",
@@ -154,6 +190,11 @@ export const DEFAULT_SETTINGS: AppSettings = {
   reminderMinutes: 10,
   startOnBoot: false,
   theme: "system",
+  iqamaEnabled: true,
+  iqamaOffsets: { ...DEFAULT_IQAMA_OFFSETS },
+  iqamaSoundId: DEFAULT_IQAMA_SOUND_ID,
+  iqamaUrl: "",
+  iqamaShowInList: true,
 };
 
 /** Record of what has already been played/notified, to avoid duplicates. */
@@ -166,4 +207,6 @@ export interface PlaybackRecord {
   reminderFired: PrayerName[];
   /** prayers for which the "time started" notification fired today */
   notified: PrayerName[];
+  /** prayers for which the Iqama alert has fired today */
+  iqamaFired?: PrayerName[];
 }

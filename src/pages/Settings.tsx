@@ -25,14 +25,20 @@ import { PlaybackStore } from "../services/schedulerService";
 import { openExternal } from "../services/openExternal";
 import { UpdateService, type UpdateResult } from "../services/updateService";
 import { APP_VERSION, DONATE_URL } from "../version";
-import type {
-  AdhanLength,
-  AsrMethod,
-  Language,
-  LocationMode,
-  Muezzin,
-  TimeFormat,
+import {
+  ADHAN_PRAYERS,
+  DEFAULT_IQAMA_OFFSETS,
+  IQAMA_CUSTOM,
+  type AdhanLength,
+  type AsrMethod,
+  type IqamaPrayer,
+  type Language,
+  type LocationMode,
+  type Muezzin,
+  type TimeFormat,
 } from "../types";
+import { playIqama } from "../services/iqamaService";
+import { IQAMA_SOUNDS } from "../data/iqamaSounds";
 import { setAutostart } from "../services/systemService";
 
 export function SettingsPage({ onBack }: { onBack: () => void }) {
@@ -157,6 +163,42 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
     } catch {
       showToast(t("errors.audioFailed"));
     }
+  }
+
+  function setIqamaOffset(prayer: IqamaPrayer, minutes: number) {
+    const clamped = Math.min(120, Math.max(0, Math.round(minutes) || 0));
+    void update({
+      iqamaOffsets: { ...settings.iqamaOffsets, [prayer]: clamped },
+    });
+  }
+
+  /** Preview the Iqama exactly as it will fire (sound + popup). */
+  async function testIqama() {
+    const lang = i18n.language === "ar" ? "ar" : "en";
+    const prayer = t("prayers.maghrib");
+    try {
+      await playIqama(settings);
+    } catch {
+      showToast(t("errors.audioFailed"));
+    }
+    void AzanService.show({
+      title: t("notifications.iqamaTitle"),
+      prayer,
+      body: t("notifications.iqamaBody", { prayer }),
+      at: formatTime(
+        new Intl.DateTimeFormat("en-GB", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        }).format(new Date()),
+        settings.timeFormat,
+        lang
+      ),
+      stopLabel: t("settings.stopPreview"),
+      language: lang,
+      ttlMs: 30000,
+    });
+    showToast(t("settings.testSent"));
   }
 
   async function toggleStartup(value: boolean) {
@@ -497,6 +539,123 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Iqama */}
+      <div className="section">
+        <h3>{t("settings.iqamaSection")}</h3>
+        <span className="muted" style={{ fontSize: 12 }}>
+          {t("settings.iqamaHint")}
+        </span>
+
+        <div className="field-row">
+          <label>{t("settings.iqamaEnabled")}</label>
+          <input
+            type="checkbox"
+            checked={settings.iqamaEnabled}
+            onChange={(e) => update({ iqamaEnabled: e.target.checked })}
+          />
+        </div>
+
+        {settings.iqamaEnabled && (
+          <>
+            <div className="field">
+              <label>{t("settings.iqamaOffsets")}</label>
+              {(ADHAN_PRAYERS as IqamaPrayer[]).map((p) => (
+                <div className="muezzin-row" key={p}>
+                  <span>{t(`prayers.${p}`)}</span>
+                  <span className="short-field">
+                    <input
+                      type="number"
+                      min={0}
+                      max={120}
+                      value={settings.iqamaOffsets[p] ?? 0}
+                      onChange={(e) => setIqamaOffset(p, Number(e.target.value))}
+                    />
+                    <span className="short-unit">{t("settings.minutes")}</span>
+                  </span>
+                </div>
+              ))}
+              <span className="muted" style={{ fontSize: 12 }}>
+                {t("settings.iqamaOffsetsHint")}
+              </span>
+              <div className="row" style={{ gap: 8, marginTop: 8 }}>
+                <button
+                  className="ghost"
+                  onClick={() =>
+                    update({ iqamaOffsets: { ...DEFAULT_IQAMA_OFFSETS } })
+                  }
+                >
+                  ↺ {t("settings.iqamaReset")}
+                </button>
+              </div>
+            </div>
+
+            <div className="field">
+              <label>{t("settings.iqamaSound")}</label>
+              <select
+                value={settings.iqamaSoundId}
+                onChange={(e) => update({ iqamaSoundId: e.target.value })}
+              >
+                {IQAMA_SOUNDS.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {t(`iqamaSounds.${s.nameKey}`)}
+                  </option>
+                ))}
+                <option value={IQAMA_CUSTOM}>{t("settings.iqamaCustom")}</option>
+              </select>
+              <div className="row" style={{ gap: 8, marginTop: 8 }}>
+                <button
+                  className="ghost"
+                  onClick={() => void playIqama(settings)}
+                >
+                  ▶ {t("settings.preview")}
+                </button>
+                <button className="ghost" onClick={() => AudioService.stop()}>
+                  ⏹ {t("settings.stopPreview")}
+                </button>
+              </div>
+              <span className="muted" style={{ fontSize: 12 }}>
+                {t("settings.iqamaSoundHint")}
+              </span>
+            </div>
+
+            {settings.iqamaSoundId === IQAMA_CUSTOM && (
+              <div className="field">
+                <label>{t("settings.iqamaUrl")}</label>
+                <input
+                  type="url"
+                  placeholder={t("settings.muezzinUrl")}
+                  value={settings.iqamaUrl}
+                  onChange={(e) => update({ iqamaUrl: e.target.value })}
+                />
+                <span className="muted" style={{ fontSize: 12 }}>
+                  {t("settings.iqamaUrlHint")}
+                </span>
+              </div>
+            )}
+
+            <div className="field-row">
+              <label>{t("settings.iqamaShowInList")}</label>
+              <input
+                type="checkbox"
+                checked={settings.iqamaShowInList}
+                onChange={(e) => update({ iqamaShowInList: e.target.checked })}
+              />
+            </div>
+
+            <div className="field">
+              <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
+                <button className="primary" onClick={() => void testIqama()}>
+                  ▶ {t("settings.testIqama")}
+                </button>
+                <button className="ghost" onClick={() => AudioService.stop()}>
+                  ⏹ {t("settings.stopPreview")}
+                </button>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* System */}

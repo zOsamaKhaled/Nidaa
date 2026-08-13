@@ -9,7 +9,8 @@ import { Header } from "../components/Header";
 import { NextPrayerHero } from "../components/NextPrayerHero";
 import { PrayerCard } from "../components/PrayerCard";
 import { InspirationSlider } from "../components/InspirationSlider";
-import { ALL_PRAYERS } from "../types";
+import { ALL_PRAYERS, type IqamaPrayer } from "../types";
+import { iqamaTimes } from "../services/schedulerService";
 import { formatGregorian, formatHijri } from "../utils/time";
 
 export function HomePage({
@@ -30,6 +31,12 @@ export function HomePage({
   useScheduler(settings, prayerDay);
 
   const lang = i18n.language === "ar" ? "ar" : "en";
+
+  // Iqama times shown under each prayer (empty when the feature is off).
+  const iqama: Partial<Record<IqamaPrayer, string>> =
+    settings.iqamaEnabled && settings.iqamaShowInList && prayerDay
+      ? iqamaTimes(prayerDay.timings, settings.iqamaOffsets)
+      : {};
 
   // Change-location button: detect automatically; on failure, tell the user to
   // pick manually (the banner offers a shortcut into Settings).
@@ -111,6 +118,7 @@ export function HomePage({
               prayer={p}
               time={prayerDay.timings[p]}
               isNext={next?.name === p}
+              iqamaTime={iqama[p as IqamaPrayer]}
             />
           ))}
         </div>

@@ -348,6 +348,11 @@ input[type="checkbox"] {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
+.prayer-card .piqama {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
 
 /* ---- Inspiration slider ---- */
 .inspire {
